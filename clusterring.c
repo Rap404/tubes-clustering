@@ -164,7 +164,7 @@ int main()
          data[20].normHobi}
 
     };
-    int used[MAX_DATA] = {0};
+
     int changed;
 
     // Proses iterasi K-Means
