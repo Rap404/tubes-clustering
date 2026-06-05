@@ -61,8 +61,6 @@ int main()
     char line[1000];
     int jumlahData = 0;
 
-    // Skip header CSV
-    fgets(line, sizeof(line), fp);
     // Membaca data CSV
     while (fgets(line, sizeof(line), fp))
     {
@@ -151,17 +149,17 @@ int main()
     // CENTROID AWAL
     double centroid[K][ATRIBUT] = {
 
-        {data[19].normOrganisasi,
-         data[19].normBelajar,
-         data[19].normHobi},
+        {data[0].normOrganisasi,
+         data[0].normBelajar,
+         data[0].normHobi},
 
-        {data[14].normOrganisasi,
-         data[14].normBelajar,
-         data[14].normHobi},
+        {data[28].normOrganisasi,
+         data[28].normBelajar,
+         data[28].normHobi},
 
-        {data[20].normOrganisasi,
-         data[20].normBelajar,
-         data[20].normHobi}
+        {data[9].normOrganisasi,
+         data[9].normBelajar,
+         data[9].normHobi}
 
     };
 
