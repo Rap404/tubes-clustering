@@ -47,6 +47,88 @@ double euclidean(double data[], double centroid[])
         pow(data[2] - centroid[2], 2));
 }
 
+// Menghitung silhouette score untuk 1 data
+double silhouetteScore(Mahasiswa data[], int jumlahData, int index)
+{
+    int clusterSendiri = data[index].cluster;
+
+    double a = 0.0;
+    int countA = 0;
+
+    // Menghitung rata-rata jarak ke cluster sendiri
+    for (int i = 0; i < jumlahData; i++)
+    {
+        if (i != index &&
+            data[i].cluster == clusterSendiri)
+        {
+            double d1[ATRIBUT] = {
+                data[index].normOrganisasi,
+                data[index].normBelajar,
+                data[index].normHobi};
+
+            double d2[ATRIBUT] = {
+                data[i].normOrganisasi,
+                data[i].normBelajar,
+                data[i].normHobi};
+
+            a += euclidean(d1, d2);
+            countA++;
+        }
+    }
+
+    if (countA > 0)
+        a /= countA;
+
+    // Menghitung rata-rata jarak ke cluster lain
+    double b = 999999;
+
+    for (int c = 0; c < K; c++)
+    {
+        if (c == clusterSendiri)
+            continue;
+
+        double totalJarak = 0.0;
+        int countB = 0;
+
+        for (int i = 0; i < jumlahData; i++)
+        {
+            if (data[i].cluster == c)
+            {
+                double d1[ATRIBUT] = {
+                    data[index].normOrganisasi,
+                    data[index].normBelajar,
+                    data[index].normHobi};
+
+                double d2[ATRIBUT] = {
+                    data[i].normOrganisasi,
+                    data[i].normBelajar,
+                    data[i].normHobi};
+
+                totalJarak += euclidean(d1, d2);
+                countB++;
+            }
+        }
+
+        if (countB > 0)
+        {
+            double rata = totalJarak / countB;
+
+            if (rata < b)
+                b = rata;
+        }
+    }
+
+    // Rumus silhouette
+    double s;
+
+    if (a > b)
+        s = (b - a) / a;
+    else
+        s = (b - a) / b;
+
+    return s;
+}
+
 int main()
 {
     FILE *fp = fopen("data_kmeans_mahasiswa.csv", "r");
@@ -264,6 +346,68 @@ int main()
             }
         }
         printf("\n");
+    }
+
+    printf("\n====== EVALUASI MODEL ======\n\n");
+
+    double totalSilhouette = 0.0;
+
+    for (int i = 0; i < K; i++)
+    {
+        double clusterScore = 0.0;
+        int jumlahCluster = 0;
+
+        for (int j = 0; j < jumlahData; j++)
+        {
+            if (data[j].cluster == i)
+            {
+                double s =
+                    silhouetteScore(data,
+                                    jumlahData,
+                                    j);
+
+                clusterScore += s;
+                totalSilhouette += s;
+
+                jumlahCluster++;
+            }
+        }
+
+        if (jumlahCluster > 0)
+        {
+            clusterScore /= jumlahCluster;
+
+            printf("Cluster %d Silhouette Score : %.3lf\n",
+                   i + 1,
+                   clusterScore);
+        }
+    }
+
+    totalSilhouette /= jumlahData;
+
+    printf("\nTotal Silhouette Score : %.3lf\n",
+           totalSilhouette);
+
+    // Interpretasi
+    if (totalSilhouette > 0.7)
+    {
+
+        printf("Kualitas cluster sangat baik\n");
+    }
+    else if (totalSilhouette > 0.5)
+    {
+
+        printf("Kualitas cluster baik\n");
+    }
+    else if (totalSilhouette > 0.25)
+    {
+
+        printf("Kualitas cluster cukup\n");
+    }
+    else
+    {
+
+        printf("Kualitas cluster kurang baik\n");
     }
     return 0;
 }
